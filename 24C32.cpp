@@ -6,9 +6,16 @@ Franz Stoiber 2020
 #include "24C32.h"
 #include <Wire.h>
 
-void EE::begin(uint8_t I2CAdr) {
+bool EE::begin(uint8_t I2CAdr) {
   //I2CAdr ... one of the posible device addresses
+  //result is true when device present else false
   DeviceAdr = I2CAdr;
+  Wire.beginTransmission(DeviceAdr);
+  if (Wire.endTransmission() != 0) {
+    Serial.println("24C32: device not found");
+    return(false);
+  }
+  return(true);
 }
 
 bool EE::eraseData(uint8_t Val, bool Check) {

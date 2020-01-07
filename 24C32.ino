@@ -1,6 +1,12 @@
 /*
   24C32 example -  by Franz Stoiber
 
+  History -----------------------------------------------------
+  2020-01-05 V1.0
+             eraseData at end of program
+  2020-01-07 V1.1
+-------------------------------------------------------------
+
   Hardware ----------------------------------------------------
   controller: ESP32 Dev Module
   EEPROM 24C32
@@ -47,7 +53,7 @@
 
 //declarations for prg
 String PrgName = "24C32 example";
-String PrgVersion = "1.0";
+String PrgVersion = "1.1";
 uint8_t a[500];
 uint8_t b[EEPROM24C32__SIZE];
 
@@ -69,11 +75,6 @@ void setup() {
 
   //init class EEPROM24C3231
   myEEPROM.begin(EEPROM24C32_DEFAULT_ADDRESS);
-
-  Serial.println("--- erase all data in EEPROM");
-  Ok = myEEPROM.eraseData(0xFF, true);
-  if (Ok) Serial.println("erase data ok");
-  else Serial.println("erase data failed");
 
   Serial.println("--- do some writes and reads");
   myEEPROM.writeByte(100, 0x77, true, false);
@@ -133,10 +134,15 @@ void setup() {
     Serial.println(b[i + 7]);
   }
 
-  Serial.println("--- end ");
+  Serial.println("--- erase all data in EEPROM");
+  Ok = myEEPROM.eraseData(0xFF, true);
+  if (Ok) Serial.println("erase data ok");
+  else Serial.println("erase data failed");
+  
+  Serial.println("--- end");
 }
 
 void loop() {
-  Serial.println("loop");
+  Serial.println("--- end");
   delay(30000);
 }

@@ -4,8 +4,10 @@ Franz Stoiber 2020
 
 History -----------------------------------------------------
 2020-01-05 V1
+           check if device is present
+2020-01-07 V2
 -------------------------------------------------------------
- */
+*/
  
 #ifndef EE_h
 #define EE_h
@@ -22,9 +24,9 @@ History -----------------------------------------------------
 
 class EE {
   public:
-    const uint8_t Version = 1;
+    const uint8_t Version = 2;
   
-    void begin(uint8_t I2CAdr);
+    bool begin(uint8_t I2CAdr);
     bool eraseData(uint8_t Val, bool Check);
     bool writeByte(uint16_t Adr, uint8_t Data, bool Check, bool Update);
     bool writeFloat(uint16_t Adr, float Val, bool Check, bool Update);
