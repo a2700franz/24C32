@@ -13,3 +13,4 @@ readByte	    KEYWORD2
 readFloat   	KEYWORD2
 readDouble	  KEYWORD2
 readBytes	    KEYWORD2
+Version       KEYWORD2
