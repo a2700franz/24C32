@@ -2,11 +2,14 @@
 24C32.h - Library for EEPROM 24C32
 Franz Stoiber 2020
 
-History -----------------------------------------------------
+History -----------------------------------------------------------
 2020-01-05 V1
-           check if device is present
+           check if device is present in function begin
 2020-01-07 V2
--------------------------------------------------------------
+           check if device is present now in function checkPresence
+           new function logInfo can be activated in function begin
+2020-01-26 V3
+-------------------------------------------------------------------
 */
  
 #ifndef EE_h
@@ -24,9 +27,10 @@ History -----------------------------------------------------
 
 class EE {
   public:
-    const uint8_t Version = 2;
+    const uint8_t Version = 3;
   
-    bool begin(uint8_t I2CAdr);
+    void begin(uint8_t I2CAdr, bool Log = false);
+    bool checkPresence();
     bool eraseData(uint8_t Val, bool Check);
     bool writeByte(uint16_t Adr, uint8_t Data, bool Check, bool Update);
     bool writeFloat(uint16_t Adr, float Val, bool Check, bool Update);
@@ -39,9 +43,11 @@ class EE {
     
   private:
     uint8_t DeviceAdr;
+    bool SerialLog;
     
     bool writePage (uint8_t PageNr, uint8_t StartByteNr, int8_t Len, uint8_t *Data, uint16_t &Pos, bool Check);
     void waitReady();
+    void logInfo(const char *Item);
 };
 
 #endif

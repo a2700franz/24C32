@@ -5,6 +5,8 @@
   2020-01-05 V1.0
              eraseData at end of program
   2020-01-07 V1.1
+             changes to use library 24C31 V3
+  2020-01-26 V1.2          
 -------------------------------------------------------------
 
   Hardware ----------------------------------------------------
@@ -53,7 +55,7 @@
 
 //declarations for prg
 String PrgName = "24C32 example";
-String PrgVersion = "1.1";
+String PrgVersion = "1.3";
 uint8_t a[500];
 uint8_t b[EEPROM24C32__SIZE];
 
@@ -74,7 +76,10 @@ void setup() {
   Wire.setClock(400000);
 
   //init class EEPROM24C3231
-  myEEPROM.begin(EEPROM24C32_DEFAULT_ADDRESS);
+  myEEPROM.begin(EEPROM24C32_DEFAULT_ADDRESS, true);
+
+  Serial.println("--- check presence of device");
+  myEEPROM.checkPresence();
 
   Serial.println("--- do some writes and reads");
   myEEPROM.writeByte(100, 0x77, true, false);
@@ -143,6 +148,6 @@ void setup() {
 }
 
 void loop() {
-  Serial.println("--- end");
+  Serial.println("--- loop");
   delay(30000);
 }

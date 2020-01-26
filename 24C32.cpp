@@ -6,15 +6,21 @@ Franz Stoiber 2020
 #include "24C32.h"
 #include <Wire.h>
 
-bool EE::begin(uint8_t I2CAdr) {
+void EE::begin(uint8_t I2CAdr, bool Log) {
   //I2CAdr ... one of the posible device addresses
-  //result is true when device present else false
+  //Log    ... activates the serial log function if specified, defaults to no log
   DeviceAdr = I2CAdr;
+  SerialLog = Log;
+}
+
+bool EE::checkPresence() {
+  //result is true when device present else false 
   Wire.beginTransmission(DeviceAdr);
   if (Wire.endTransmission() != 0) {
-    Serial.println("24C32: device not found");
+    logInfo("device not found");
     return(false);
   }
+  logInfo("device present");
   return(true);
 }
 
@@ -24,6 +30,7 @@ bool EE::eraseData(uint8_t Val, bool Check) {
   //result is true when check ok else false
   uint16_t i, j;
   uint16_t Adr;
+  char Info[40];
   bool Ok;
   for (i = 0; i < EEPROM24C32__PAGES; i++) {
     Adr = i * EEPROM24C32__PAGE_SIZE;
@@ -47,9 +54,8 @@ bool EE::eraseData(uint8_t Val, bool Check) {
     readBytes(0, EEPROM24C32__SIZE, Result);
     for (i = 0; i < EEPROM24C32__SIZE; i++) {
       if (Result[i] != Val) {
-        Serial.print("EE erase data on address ");
-        Serial.print(i);
-        Serial.println(" failed");
+        sprintf(Info, "erase data on address %d failed", i);
+        logInfo(Info);
         Ok = false;
       }
     }
@@ -63,7 +69,7 @@ bool EE::writeByte(uint16_t Adr, uint8_t Data, bool Check, bool Update) {
   //Check  ... check the result
   //Update ... write only if data differs from EEPROM value
   //result is true when check ok else false
-  if (Adr >= EEPROM24C32__SIZE) Serial.println("EE write byte address invalid");
+  if (Adr >= EEPROM24C32__SIZE) logInfo("write byte address invalid");
   if (Update && readByte(Adr) == Data) return(true); 
   Wire.beginTransmission(DeviceAdr);
   Wire.write(Adr >> 8);
@@ -72,7 +78,7 @@ bool EE::writeByte(uint16_t Adr, uint8_t Data, bool Check, bool Update) {
   Wire.endTransmission();
   waitReady();
   if (Check && readByte(Adr) != Data) {
-    Serial.println("EE write byte failed");
+    logInfo("write byte failed");
     return(false);    
   }
   return(true);
@@ -89,12 +95,12 @@ bool EE::writeFloat(uint16_t Adr, float Val, bool Check, bool Update) {
     float Float;
     uint8_t Bytes[Size];
   } Value;
-  if (Adr >= EEPROM24C32__SIZE) Serial.println("EE write float address invalid");
+  if (Adr >= EEPROM24C32__SIZE) logInfo("write float address invalid");
   if (Update && readFloat(Adr) == Val) return(true);   
   Value.Float = Val;
   writeBytes(Adr, Size, Value.Bytes, false);
   if (Check && readFloat(Adr) != Val) {
-    Serial.println("EE write float failed");
+    logInfo("write float failed");
     return(false);    
   } 
   return(true);
@@ -111,12 +117,12 @@ bool EE::writeDouble(uint16_t Adr, double Val, bool Check, bool Update) {
     double Double;
     uint8_t Bytes[Size];
   } Value;
-  if (Adr >= EEPROM24C32__SIZE) Serial.println("EE write double address invalid");
+  if (Adr >= EEPROM24C32__SIZE) logInfo("write double address invalid");
   if (Update && readDouble(Adr) == Val) return(true); 
   Value.Double = Val;
   writeBytes(Adr, Size, Value.Bytes, false);
   if (Check && readDouble(Adr) != Val) {
-    Serial.println("EE write double failed");
+    logInfo("write double failed");
     return(false);    
   } 
   return(true);
@@ -135,8 +141,8 @@ bool EE::writeBytes(uint16_t Adr, int16_t Len, uint8_t *Data, bool Check) {
   uint8_t i;
   uint16_t Pos;
   bool Ok;
-  if (Adr >= EEPROM24C32__SIZE) Serial.println("EE writwe bytes address invalid");
-  if ((Adr + Len) > EEPROM24C32__SIZE) Serial.println("EE write bytes length invalid");
+  if (Adr >= EEPROM24C32__SIZE) logInfo("writwe bytes address invalid");
+  if ((Adr + Len) > EEPROM24C32__SIZE) logInfo("write bytes length invalid");
   Pos = 0;
   Ok = true;
   while (Len > 0) {
@@ -165,7 +171,7 @@ bool EE::writeBytes(uint16_t Adr, int16_t Len, uint8_t *Data, bool Check) {
 uint8_t EE::readByte(uint16_t Adr) {
   //Adr    ... address in EEPROM
   //result is read byte
-  if (Adr >= EEPROM24C32__SIZE) Serial.println("EE read byte address invalid");
+  if (Adr >= EEPROM24C32__SIZE) logInfo("read byte address invalid");
   uint32_t TimeoutMillis;
   Wire.beginTransmission(DeviceAdr);
   Wire.write(Adr >> 8);
@@ -175,7 +181,7 @@ uint8_t EE::readByte(uint16_t Adr) {
   Wire.requestFrom(DeviceAdr, 1);
   while (Wire.available() < 1) {
     if ((int32_t)(millis() - TimeoutMillis) > 0) {
-      Serial.println("EE read byte timeout");
+      logInfo("read byte timeout");
       break;
     }
   }
@@ -190,7 +196,7 @@ float EE::readFloat(uint16_t Adr) {
     float Float;
     uint8_t Bytes[Size];
   } Value;
-  if (Adr >= EEPROM24C32__SIZE) Serial.println("EE read float address invalid");
+  if (Adr >= EEPROM24C32__SIZE) logInfo("read float address invalid");
   readBytes(Adr, Size, Value.Bytes);
   return(Value.Float); 
 }
@@ -203,7 +209,7 @@ double EE::readDouble(uint16_t Adr) {
     double Double;
     uint8_t Bytes[Size];
   } Value;
-  if (Adr >= EEPROM24C32__SIZE) Serial.println("EE read double address invalid");
+  if (Adr >= EEPROM24C32__SIZE) logInfo("read double address invalid");
   readBytes(Adr, Size, Value.Bytes);
   return(Value.Double); 
 }
@@ -212,8 +218,8 @@ void EE::readBytes(uint16_t Adr, int16_t Len, uint8_t *Data) {
   //Adr    ... address in EEPROM
   //Len    ... nr of bytes to read
   //Data   ... array of bytes to read
-  if (Adr >= EEPROM24C32__SIZE) Serial.println("EE read bytes address invalid");
-  if ((Adr + Len) > EEPROM24C32__SIZE) Serial.println("EE read bytes length invalid");
+  if (Adr >= EEPROM24C32__SIZE) logInfo("read bytes address invalid");
+  if ((Adr + Len) > EEPROM24C32__SIZE) logInfo("read bytes length invalid");
   uint16_t i;
   uint16_t Pos;
   int16_t Length;
@@ -230,7 +236,7 @@ void EE::readBytes(uint16_t Adr, int16_t Len, uint8_t *Data) {
     Wire.requestFrom(DeviceAdr, Length);
     while (Wire.available() < Length) {
       if ((int32_t)(millis() - TimeoutMillis) > 0) {
-        //Serial.println("EE read bytes timeout");
+        //logInfo("read bytes timeout");
         break;
       }
     }
@@ -246,10 +252,11 @@ bool EE::writePage (uint8_t PageNr, uint8_t StartByteNr, int8_t Len, uint8_t *Da
   uint16_t Adr;
   uint8_t i;
   uint16_t StartPos;
+  char Info[40];
   bool Ok;
-  if (PageNr >= EEPROM24C32__PAGES) Serial.println("EE write page nr invalid");
-  if (StartByteNr >= EEPROM24C32__PAGE_SIZE) Serial.println("EE write page byte nr invalid");
-  if ((StartByteNr + Len) > EEPROM24C32__PAGE_SIZE) Serial.println("EE write page length invalid");
+  if (PageNr >= EEPROM24C32__PAGES) logInfo("write page nr invalid");
+  if (StartByteNr >= EEPROM24C32__PAGE_SIZE) logInfo("write page byte nr invalid");
+  if ((StartByteNr + Len) > EEPROM24C32__PAGE_SIZE) logInfo("write page length invalid");
   StartPos = Pos;
   Adr = (PageNr << 5) | StartByteNr; 
   Wire.beginTransmission(DeviceAdr);
@@ -269,9 +276,8 @@ bool EE::writePage (uint8_t PageNr, uint8_t StartByteNr, int8_t Len, uint8_t *Da
       if (Result[i] != Data[StartPos + i]) Ok = false;
     }
     if (!Ok) {
-      Serial.print("EE write page ");
-      Serial.print(PageNr);
-      Serial.println(" failed");
+      sprintf(Info, "write page %d failed", PageNr);
+      logInfo(Info);
     }
   }
   return(Ok); 
@@ -286,8 +292,15 @@ void EE::waitReady() {
     Response = Wire.endTransmission();
     if (Response == 0) break;
     if ((int32_t)(millis() - TimeoutMillis) > 0) {
-      Serial.println("EE wait ready timeout");
+      logInfo("wait ready timeout");
       break;
     }
+  }
+}
+
+void EE::logInfo(const char *Item) {
+  if (SerialLog) {
+    Serial.print("24C32: ");
+    Serial.println(Item);
   }
 }

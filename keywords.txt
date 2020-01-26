@@ -4,6 +4,7 @@
 
 EE      	    KEYWORD2
 begin       	KEYWORD2
+checkPresence KEYWORD2
 eraseData	    KEYWORD2
 writeByte   	KEYWORD2
 writeFloat  	KEYWORD2
