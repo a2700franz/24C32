@@ -96,6 +96,7 @@ bool EE::writeFloat(uint16_t Adr, float Val, bool Check, bool Update) {
     uint8_t Bytes[Size];
   } Value;
   if (Adr >= EEPROM24C32__SIZE) logInfo("write float address invalid");
+  if ((Adr + Size) > EEPROM24C32__SIZE) logInfo("write float size invalid");
   if (Update && readFloat(Adr) == Val) return(true);   
   Value.Float = Val;
   writeBytes(Adr, Size, Value.Bytes, false);
@@ -118,11 +119,58 @@ bool EE::writeDouble(uint16_t Adr, double Val, bool Check, bool Update) {
     uint8_t Bytes[Size];
   } Value;
   if (Adr >= EEPROM24C32__SIZE) logInfo("write double address invalid");
+  if ((Adr + Size) > EEPROM24C32__SIZE) logInfo("write double size invalid"); 
   if (Update && readDouble(Adr) == Val) return(true); 
   Value.Double = Val;
   writeBytes(Adr, Size, Value.Bytes, false);
   if (Check && readDouble(Adr) != Val) {
     logInfo("write double failed");
+    return(false);    
+  } 
+  return(true);
+}
+
+bool EE::writeUInt32(uint16_t Adr, uint32_t Val, bool Check, bool Update) {
+  //Adr    ... address in EEPROM
+  //Val    ... value to write
+  //Check  ... check the result
+  //Update ... write only if data differs from EEPROM value
+  //result is true when check ok else false
+  const uint8_t Size = sizeof(uint32_t);
+  union {
+    uint32_t UInteger;
+    uint8_t Bytes[Size];
+  } Value; 
+  if (Adr >= EEPROM24C32__SIZE) logInfo("write uint32 address invalid");
+  if ((Adr + Size) > EEPROM24C32__SIZE) logInfo("write uint32 size invalid"); 
+  if (Update && readUInt32(Adr) == Val) return(true); 
+  Value.UInteger = Val;
+  writeBytes(Adr, Size, Value.Bytes, false);
+  if (Check && readUInt32(Adr) != Val) {
+    logInfo("write uint32 failed");
+    return(false);    
+  } 
+  return(true);
+}
+
+bool EE::writeInt32(uint16_t Adr, int32_t Val, bool Check, bool Update) {
+  //Adr    ... address in EEPROM
+  //Val    ... value to write
+  //Check  ... check the result
+  //Update ... write only if data differs from EEPROM value
+  //result is true when check ok else false
+  const uint8_t Size = sizeof(int32_t);
+  union {
+    int32_t Integer;
+    uint8_t Bytes[Size];
+  } Value;
+  if (Adr >= EEPROM24C32__SIZE) logInfo("write int32 address invalid");
+  if ((Adr + Size) > EEPROM24C32__SIZE) logInfo("write int32 size invalid"); 
+  if (Update && readInt32(Adr) == Val) return(true); 
+  Value.Integer = Val;
+  writeBytes(Adr, Size, Value.Bytes, false);
+  if (Check && readInt32(Adr) != Val) {
+    logInfo("write int32 failed");
     return(false);    
   } 
   return(true);
@@ -212,6 +260,34 @@ double EE::readDouble(uint16_t Adr) {
   if (Adr >= EEPROM24C32__SIZE) logInfo("read double address invalid");
   readBytes(Adr, Size, Value.Bytes);
   return(Value.Double); 
+}
+
+uint32_t EE::readUInt32(uint16_t Adr) {
+  //Adr    ... address in EEPROM
+  //result is read value
+  const uint8_t Size = sizeof(uint32_t);
+  union {
+    uint32_t UInteger;
+    uint8_t Bytes[Size];
+  } Value;
+  if (Adr >= EEPROM24C32__SIZE) logInfo("read uint32 address invalid");
+  if ((Adr + Size) > EEPROM24C32__SIZE) logInfo("read uint32 size invalid");
+  readBytes(Adr, Size, Value.Bytes);
+  return(Value.UInteger); 
+}
+
+int32_t EE::readInt32(uint16_t Adr) {
+  //Adr    ... address in EEPROM
+  //result is read value
+  const uint8_t Size = sizeof(int32_t);
+  union {
+    int32_t Integer;
+    uint8_t Bytes[Size];
+  } Value;
+  if (Adr >= EEPROM24C32__SIZE) logInfo("read int32 address invalid");
+  if ((Adr + Size) > EEPROM24C32__SIZE) logInfo("read int32 size invalid");
+  readBytes(Adr, Size, Value.Bytes);
+  return(Value.Integer); 
 }
 
 void EE::readBytes(uint16_t Adr, int16_t Len, uint8_t *Data) {

@@ -9,6 +9,11 @@ History -----------------------------------------------------------
            check if device is present now in function checkPresence
            new function logInfo can be activated in function begin
 2020-01-26 V3
+           new function readUInt32
+           new function writeUInt32
+           new function readInt32
+           new function writeInt32
+2020-02-23 V4
 -------------------------------------------------------------------
 */
  
@@ -27,7 +32,7 @@ History -----------------------------------------------------------
 
 class EE {
   public:
-    const uint8_t Version = 3;
+    const uint8_t Version = 4;
   
     void begin(uint8_t I2CAdr, bool Log = false);
     bool checkPresence();
@@ -35,10 +40,14 @@ class EE {
     bool writeByte(uint16_t Adr, uint8_t Data, bool Check, bool Update);
     bool writeFloat(uint16_t Adr, float Val, bool Check, bool Update);
     bool writeDouble(uint16_t Adr, double Val, bool Check, bool Update);
+    bool writeUInt32(uint16_t Adr, uint32_t Val, bool Check, bool Update);
+    bool writeInt32(uint16_t Adr, int32_t Val, bool Check, bool Update);
     bool writeBytes(uint16_t Adr, int16_t Len, uint8_t *Data, bool Check);
     uint8_t readByte(uint16_t Adr);
     float readFloat(uint16_t Adr);
     double readDouble(uint16_t Adr);
+    uint32_t readUInt32(uint16_t Adr);
+    int32_t readInt32(uint16_t Adr);
     void readBytes(uint16_t Adr, int16_t Len, uint8_t *Data);
     
   private:

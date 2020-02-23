@@ -2,16 +2,20 @@
 # color map for library 24C32
 ################################################################################
 
-EE      	    KEYWORD2
+EE      	KEYWORD2
 begin       	KEYWORD2
-checkPresence KEYWORD2
-eraseData	    KEYWORD2
+checkPresence 	KEYWORD2
+eraseData	KEYWORD2
 writeByte   	KEYWORD2
 writeFloat  	KEYWORD2
 writeDouble 	KEYWORD2
+writeUInt32 	KEYWORD2
+writeInt32 	KEYWORD2
 writeBytes   	KEYWORD2
-readByte	    KEYWORD2
+readByte	KEYWORD2
 readFloat   	KEYWORD2
-readDouble	  KEYWORD2
-readBytes	    KEYWORD2
-Version       KEYWORD2
+readUint32   	KEYWORD2
+readInt32  	KEYWORD2
+readDouble	KEYWORD2
+readBytes	KEYWORD2
+Version      	KEYWORD2

@@ -6,7 +6,9 @@
              eraseData at end of program
   2020-01-07 V1.1
              changes to use library 24C31 V3
-  2020-01-26 V1.2          
+  2020-01-26 V1.2
+             included new functions from library 24C31 V4
+  2020-02-23 V1.3           
 -------------------------------------------------------------
 
   Hardware ----------------------------------------------------
@@ -68,8 +70,10 @@ void setup() {
 
   Serial.begin(115200);
   Serial.print(PrgName);
-  Serial.print("  V");
+  Serial.print(" V");
   Serial.println(PrgVersion);
+  Serial.print("library 24C32 V");
+  Serial.println(myEEPROM.Version);
 
   //init library Wire
   Wire.begin();
@@ -88,6 +92,10 @@ void setup() {
   Serial.println(myEEPROM.readFloat(101), 3);
   myEEPROM.writeDouble(105, 3457.485967, true, false);
   Serial.println(myEEPROM.readDouble(105), 6);
+  myEEPROM.writeUInt32(109, 555555, true, false);
+  Serial.println(myEEPROM.readUInt32(109));
+  myEEPROM.writeInt32(113, -7654321, true, false);
+  Serial.println(myEEPROM.readInt32(113));
 
   Serial.println("--- write 500 bytes");
   for (i = 0; i < 500; i++) a[i] = i % 256;
